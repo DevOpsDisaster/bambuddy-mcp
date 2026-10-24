@@ -130,7 +130,7 @@ async def main():
                 return [TextContent(type="text", text=f"Unknown tool: {name}")]
 
             args = dict(arguments or {})
-            embed_image = args.pop("embed_image", False)
+            embed_image = args.pop("embed_image", config.transport == "streamable-http")
             async with httpx.AsyncClient(timeout=30) as client:
                 return await execute_api_call(
                     config,
@@ -190,7 +190,7 @@ async def main():
                 ),
                 Tool(
                     name="execute_tool",
-                    description=f"Execute a Bambuddy API tool by name. Use search_tools first to find the tool name and its required arguments. Images are saved to disk by default — use xdg-open to show them to the user. Only set embed_image=true if you need to analyze the image content yourself.{censor_note}",
+                    description=f"Execute a Bambuddy API tool by name. Use search_tools first to find the tool name and its required arguments. Images are embedded by default over HTTP and saved to disk by default over stdio. Use embed_image to override this.{censor_note}",
                     inputSchema={
                         "type": "object",
                         "properties": {
@@ -205,8 +205,8 @@ async def main():
                             },
                             "embed_image": {
                                 "type": "boolean",
-                                "description": "Set to true to embed image data in the response instead of saving to a file (default: false)",
-                                "default": False,
+                                "description": "Embed image data instead of saving to a server-side file (default: true over HTTP, false over stdio)",
+                                "default": config.transport == "streamable-http",
                             },
                         },
                         "required": ["name"],
@@ -262,7 +262,9 @@ async def main():
             if name == "execute_tool":
                 tool_name = arguments.get("name", "")
                 tool_args = arguments.get("arguments", {})
-                embed_image = arguments.get("embed_image", False)
+                embed_image = arguments.get(
+                    "embed_image", config.transport == "streamable-http"
+                )
                 if tool_name not in tool_map:
                     return [
                         TextContent(
@@ -292,10 +294,20 @@ async def main():
 
             return [TextContent(type="text", text=f"Unknown meta-tool: {name}")]
 
-    async with stdio_server() as (read_stream, write_stream):
-        await server.run(
-            read_stream, write_stream, server.create_initialization_options()
-        )
+    if config.transport == "streamable-http":
+        import uvicorn
+
+        from bambuddy_mcp.transport import create_http_app
+
+        app = create_http_app(server, config.auth_token)
+        await uvicorn.Server(
+            uvicorn.Config(app, host=config.host, port=config.port)
+        ).serve()
+    else:
+        async with stdio_server() as (read_stream, write_stream):
+            await server.run(
+                read_stream, write_stream, server.create_initialization_options()
+            )
 
 
 def run():

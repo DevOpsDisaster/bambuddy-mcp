@@ -1,0 +1,27 @@
+services:
+  bambuddy-mcp:
+    image: ghcr.io/devopsdisaster/bambuddy-mcp:latest
+    restart: unless-stopped
+    init: true
+    ports:
+      - "${BAMBUDDY_MCP_BIND_IP:-0.0.0.0}:${BAMBUDDY_MCP_HOST_PORT:-8091}:8000"
+    environment:
+      BAMBUDDY_URL: ${BAMBUDDY_URL:?Set the URL of your existing Bambuddy instance}
+      BAMBUDDY_API_KEY: ${BAMBUDDY_API_KEY:-}
+      BAMBUDDY_MCP_TOKEN: ${BAMBUDDY_MCP_TOKEN:?Set a separate MCP access token}
+      BAMBUDDY_DIRECT_MODE: ${BAMBUDDY_DIRECT_MODE:-false}
+      BAMBUDDY_CENSOR_ACCESS_CODE: ${BAMBUDDY_CENSOR_ACCESS_CODE:-true}
+      BAMBUDDY_CENSOR_SERIAL: ${BAMBUDDY_CENSOR_SERIAL:-true}
+      BAMBUDDY_CENSOR_MODEL_FILENAME: ${BAMBUDDY_CENSOR_MODEL_FILENAME:-false}
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=128m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
