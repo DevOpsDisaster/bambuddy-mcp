@@ -34,6 +34,11 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v4
+      - name: Validate Compose configuration
+        env:
+          BAMBUDDY_URL: http://bambuddy:8000
+          BAMBUDDY_MCP_TOKEN: ci-test-token
+        run: docker compose config --quiet
       - name: Set image name
         id: image
         env:

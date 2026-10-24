@@ -94,7 +94,7 @@ def main():
                 with urlopen(base + "/healthz", timeout=1) as response:
                     assert json.load(response) == {"status": "ok"}
                 break
-            except (URLError, TimeoutError):
+            except (URLError, TimeoutError, ConnectionError):
                 time.sleep(1)
         else:
             raise RuntimeError("Container did not become ready")
