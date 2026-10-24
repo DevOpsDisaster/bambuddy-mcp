@@ -36,6 +36,9 @@ Once configured, you can ask your AI assistant things like:
 
 ## Requirements
 
+For Docker / Unraid installation, Python and uv are included in the image.
+See [Docker, Unraid and Paperclip setup](docs/docker.md).
+
 - Python 3.10+
 - [uv](https://docs.astral.sh/uv/) — install with `curl -LsSf https://astral.sh/uv/install.sh | sh`
 - A running [Bambuddy](https://github.com/maziggy/bambuddy) instance
@@ -130,6 +133,10 @@ On NixOS, use the system Python to avoid dynamic linking issues:
 | `BAMBUDDY_CENSOR_ACCESS_CODE` | `true` | Mask `access_code` fields in API responses |
 | `BAMBUDDY_CENSOR_SERIAL` | `true` | Mask `serial_number` fields (keeps first 2 + last 2 chars) |
 | `BAMBUDDY_CENSOR_MODEL_FILENAME` | `false` | Mask model filenames (`.3mf`, `.gcode`) in API responses and prevent direct base64 image embedding |
+| `BAMBUDDY_MCP_TRANSPORT` | `stdio` (`streamable-http` in Docker) | MCP connection transport |
+| `BAMBUDDY_MCP_HOST` | `127.0.0.1` (`0.0.0.0` in Docker) | HTTP listen address |
+| `BAMBUDDY_MCP_PORT` | `8000` | HTTP listen port inside the container |
+| `BAMBUDDY_MCP_TOKEN` | _(empty)_ | Separate bearer token for MCP clients; required for HTTP |
 
 > **Note:** By default, the server exposes meta-tools (`list_categories`, `search_tools`, `execute_tool`, `find_printer`) that let AI assistants discover and call API endpoints on demand. Set `BAMBUDDY_DIRECT_MODE=true` to expose all 430+ tools directly (uses significantly more context).
 

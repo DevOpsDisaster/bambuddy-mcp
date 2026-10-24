@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>bambuddy-mcp</Name>
+  <Repository>ghcr.io/devopsdisaster/bambuddy-mcp:latest</Repository>
+  <Registry>https://github.com/DevOpsDisaster/bambuddy-mcp/pkgs/container/bambuddy-mcp</Registry>
+  <Network>bridge</Network>
+  <Privileged>false</Privileged>
+  <Shell>sh</Shell>
+  <Project>https://github.com/DevOpsDisaster/bambuddy-mcp</Project>
+  <Support>https://github.com/DevOpsDisaster/bambuddy-mcp/issues</Support>
+  <Overview>Connect Paperclip or another MCP client to your existing Bambuddy instance over authenticated Streamable HTTP. MCP endpoint: http://NAS-IP:8091/mcp. No persistent appdata volume is required.</Overview>
+  <Category>Tools:</Category>
+  <ExtraParams>--init --read-only --tmpfs /tmp:rw,noexec,nosuid,size=128m,mode=1777 --cap-drop=ALL --security-opt=no-new-privileges:true --log-opt max-size=10m --log-opt max-file=3</ExtraParams>
+  <Config Name="MCP HTTP port" Target="8000" Default="8091" Mode="tcp" Description="Use http://NAS-IP:8091/mcp in Paperclip." Type="Port" Display="always" Required="true" Mask="false">8091</Config>
+  <Config Name="Bambuddy URL" Target="BAMBUDDY_URL" Default="" Mode="" Description="LAN URL of your existing Bambuddy, for example http://192.168.1.10:8000. Do not use localhost." Type="Variable" Display="always" Required="true" Mask="false" />
+  <Config Name="Bambuddy API key" Target="BAMBUDDY_API_KEY" Default="" Mode="" Description="API key from Bambuddy Settings, if authentication is enabled." Type="Variable" Display="always" Required="false" Mask="true" />
+  <Config Name="MCP access token" Target="BAMBUDDY_MCP_TOKEN" Default="" Mode="" Description="Generate a separate random secret with openssl rand -hex 32. Enter it in Paperclip as the app key / bearer token." Type="Variable" Display="always" Required="true" Mask="true" />
+  <Config Name="Expose all tools" Target="BAMBUDDY_DIRECT_MODE" Default="false" Mode="" Description="Optional: true lists every Bambuddy action directly. Refresh actions in Paperclip after changing this." Type="Variable" Display="advanced" Required="false" Mask="false">false</Config>
+</Container>
